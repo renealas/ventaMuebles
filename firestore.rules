@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default rule - deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Items collection - allow read for everyone, write only for authenticated users
+    match /items/{itemId} {
+      // Anyone can read items
+      allow read: if true;
+      
+      // Only authenticated users can create, update, or delete items
+      allow create, update, delete: if request.auth != null;
+    }
+  }
+}

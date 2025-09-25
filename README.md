@@ -1,36 +1,166 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# MueblesSell - Furniture Marketplace
+
+A Next.js application for selling furniture items with Firebase backend.
+
+## Features
+
+- **Public Facing:**
+  - Browse available furniture items
+  - View detailed item information and images
+  - Responsive design for all devices
+
+- **Admin Dashboard:**
+  - Secure authentication
+  - Add new furniture items with images
+  - Mark items as sold
+  - Delete items
+
+## Tech Stack
+
+- **Frontend:**
+  - Next.js 14
+  - React
+  - Tailwind CSS
+
+- **Backend:**
+  - Firebase Authentication
+  - Firestore Database
+  - Firebase Storage
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18.17.0 or later
+- npm or yarn
+- Firebase account
+
+### Setup
+
+1. **Clone the repository**
+
+```bash
+git clone <repository-url>
+cd mueblessell
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. **Firebase Setup**
+
+- Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+- Enable Authentication (Email/Password)
+- Create a Firestore database
+- Enable Storage
+- Get your Firebase configuration
+
+4. **Environment Variables and Firebase Configuration**
+
+- Copy the `.env.local.example` file to `.env.local`
+- Fill in your Firebase configuration details
+
+```bash
+cp .env.local.example .env.local
+```
+
+- Copy the `.firebaserc.example` file to `.firebaserc`
+- Update with your Firebase project ID
+
+```bash
+cp .firebaserc.example .firebaserc
+```
+
+5. **Run the development server**
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. **Open [http://localhost:3000](http://localhost:3000) in your browser**
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+mueblessell/
+├── public/             # Static assets
+├── src/
+│   ├── app/            # Next.js app router
+│   │   ├── admin/      # Admin dashboard pages
+│   │   ├── auth/       # Authentication pages
+│   │   ├── item/       # Item detail pages
+│   │   ├── layout.js   # Root layout
+│   │   └── page.js     # Home page
+│   ├── components/     # Reusable components
+│   ├── context/        # React context providers
+│   ├── firebase/       # Firebase configuration and utilities
+│   └── styles/         # Global styles
+├── .env.local          # Environment variables (create from .env.local.example)
+└── package.json        # Project dependencies
+```
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+### Vercel (Recommended)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push your code to a GitHub repository
+2. Import the project in Vercel
+3. Set up the environment variables
+4. Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Firebase Hosting and Rules
 
-## Deploy on Vercel
+1. Install Firebase CLI
+```bash
+npm install -g firebase-tools
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. Login to Firebase
+```bash
+firebase login
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Initialize Firebase Hosting, Firestore, and Storage
+```bash
+firebase init hosting
+firebase init firestore
+firebase init storage
+```
+
+4. Deploy Security Rules
+```bash
+firebase deploy --only firestore:rules
+firebase deploy --only storage:rules
+```
+
+5. Build the application
+```bash
+npm run build
+```
+
+6. Deploy to Firebase
+```bash
+firebase deploy --only hosting
+```
+
+7. Full Deployment (all services)
+```bash
+firebase deploy
+```
+
+## Creating an Admin User
+
+1. Register a new user through the sign-in page
+2. In Firebase Console, go to Firestore Database
+3. Manually set admin privileges for the user if needed
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

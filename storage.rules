@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Default rule - deny all
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // Item images - allow read for everyone, write only for authenticated users
+    match /items/{fileName} {
+      // Anyone can read item images
+      allow read: if true;
+      
+      // Only authenticated users can upload, update, or delete item images
+      allow write: if request.auth != null;
+    }
+  }
+}
