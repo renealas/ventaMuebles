@@ -30,6 +30,48 @@ export default function Home() {
     fetchItems();
   }, []);
 
+  // Add a more robust way to refresh data when navigating back to this page
+  useEffect(() => {
+    // This will run when the component mounts
+    let isActive = true;
+    
+    const refreshData = () => {
+      // Only fetch if component is still mounted
+      if (!isActive) return;
+      
+      // Use a timeout to prevent immediate requests that might be aborted
+      const timer = setTimeout(async () => {
+        try {
+          if (!isActive) return;
+          const allItems = await getAllItems(true);
+          if (isActive) {
+            setItems(allItems);
+          }
+        } catch (error) {
+          console.error('Error refreshing items:', error);
+        }
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    };
+
+    // Set up a visibility change listener instead of focus
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshData();
+      }
+    };
+
+    // Add event listener for visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Clean up the event listener when the component unmounts
+    return () => {
+      isActive = false;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   // Filter items based on sold status
   const filteredItems = showSold 
     ? items 

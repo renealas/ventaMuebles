@@ -1,12 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Enable server-side rendering
   images: {
-    unoptimized: true,
+    domains: ['sv.epaenlinea.com', 'firebasestorage.googleapis.com'],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'sv.epaenlinea.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
         pathname: '**',
       },
       // Add any other domains you might use for images
