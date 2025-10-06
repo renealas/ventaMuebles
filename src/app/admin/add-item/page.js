@@ -15,6 +15,7 @@ export default function AddItem() {
     price: '',
     dimensions: '',
     condition: '',
+    notes: '',
   });
   const [imageFiles, setImageFiles] = useState([]);
   const [imageFilePreviews, setImageFilePreviews] = useState([]);
@@ -121,6 +122,7 @@ export default function AddItem() {
         price: '',
         dimensions: '',
         condition: '',
+        notes: '',
       });
       setImageFiles([]);
       setImageFilePreviews([]);
@@ -256,6 +258,21 @@ export default function AddItem() {
               <option value="Regular">Regular</option>
               <option value="Deficiente">Deficiente</option>
             </select>
+          </div>
+
+          <div className="md:col-span-2">
+            <label htmlFor="notes" className="block mb-1 font-medium">
+              Notas (solo visibles en la página de detalles)
+            </label>
+            <textarea
+              id="notes"
+              name="notes"
+              rows={3}
+              value={formData.notes}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              placeholder="Información adicional que solo será visible en la página de detalles"
+            />
           </div>
 
           <div className="md:col-span-2">

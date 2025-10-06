@@ -141,6 +141,21 @@ export const updateItemMainImage = async (itemId, mainImageIndex) => {
   }
 };
 
+// Update an item's notes
+export const updateItemNotes = async (itemId, notes) => {
+  try {
+    const docRef = doc(db, 'items', itemId);
+    await updateDoc(docRef, {
+      notes: notes,
+      updatedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating item notes:', error);
+    throw error;
+  }
+};
+
 // Delete an item
 export const deleteItem = async (itemId) => {
   try {

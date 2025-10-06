@@ -5,15 +5,18 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../../../../context/AuthContext';
-import { getItemById, updateItemMainImage } from '../../../../firebase/firestore';
+import { getItemById, updateItemMainImage, updateItemNotes } from '../../../../firebase/firestore';
 
 export default function EditItemClient({ id }) {
   const [item, setItem] = useState(null);
   const [mainImageIndex, setMainImageIndex] = useState(0);
+  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingNotes, setSavingNotes] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [notesSuccess, setNotesSuccess] = useState(false);
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -46,6 +49,11 @@ export default function EditItemClient({ id }) {
         if (itemData.mainImageIndex !== undefined) {
           setMainImageIndex(itemData.mainImageIndex);
         }
+        
+        // Set notes if they exist
+        if (itemData.notes !== undefined) {
+          setNotes(itemData.notes);
+        }
       } catch (error) {
         console.error('Error fetching item:', error);
         setError('Failed to load item. Please try again.');
@@ -59,6 +67,10 @@ export default function EditItemClient({ id }) {
 
   const handleSetMainImage = (index) => {
     setMainImageIndex(index);
+  };
+  
+  const handleNotesChange = (e) => {
+    setNotes(e.target.value);
   };
 
   const handleSaveMainImage = async () => {
@@ -81,6 +93,35 @@ export default function EditItemClient({ id }) {
       setError('Failed to update main image. Please try again.');
     } finally {
       setSaving(false);
+    }
+  };
+  
+  const handleSaveNotes = async () => {
+    if (!item) return;
+    
+    try {
+      setSavingNotes(true);
+      setError('');
+      
+      await updateItemNotes(item.id, notes);
+      
+      setNotesSuccess(true);
+      
+      // Update the local item state with the new notes
+      setItem({
+        ...item,
+        notes: notes
+      });
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setNotesSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error('Error updating notes:', error);
+      setError('Failed to update notes. Please try again.');
+    } finally {
+      setSavingNotes(false);
     }
   };
 
@@ -138,7 +179,7 @@ export default function EditItemClient({ id }) {
         </div>
       )}
 
-      <div className="bg-white p-6 rounded shadow">
+      <div className="bg-white p-6 rounded shadow mb-6">
         <h2 className="text-xl font-semibold mb-4">Seleccionar Imagen Principal</h2>
         
         {item.images && item.images.length > 0 ? (
@@ -193,6 +234,43 @@ export default function EditItemClient({ id }) {
         ) : (
           <p className="text-gray-500">Este artículo no tiene imágenes.</p>
         )}
+      </div>
+      
+      <div className="bg-white p-6 rounded shadow mb-6">
+        <h2 className="text-xl font-semibold mb-4">Editar Notas</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Estas notas serán visibles en la página de detalles del artículo, mostradas en negrita antes de los botones.
+        </p>
+        
+        <div className="mb-4">
+          <textarea
+            id="notes"
+            name="notes"
+            rows={4}
+            value={notes}
+            onChange={handleNotesChange}
+            className="w-full p-2 border rounded"
+            placeholder="Información adicional que solo será visible en la página de detalles"
+          />
+        </div>
+        
+        {notesSuccess && (
+          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+            ¡Notas actualizadas exitosamente!
+          </div>
+        )}
+        
+        <div className="flex justify-end">
+          <button
+            onClick={handleSaveNotes}
+            disabled={savingNotes}
+            className={`px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 ${
+              savingNotes ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {savingNotes ? 'Guardando...' : 'Guardar Notas'}
+          </button>
+        </div>
       </div>
       
       <div className="mt-6">

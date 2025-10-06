@@ -207,10 +207,33 @@ export default function ItemDetailClient({ id }) {
             </div>
           )}
 
-          <div className="mt-10">
+          {item.notes && (
+            <div className="mt-6">
+              <p className="font-bold text-gray-800">{item.notes}</p>
+            </div>
+          )}
+
+          <div className="mt-10 flex flex-wrap gap-4 items-center">
             <Link href="/" className="text-indigo-600 hover:text-indigo-500 transition-colors duration-200">
               &larr; Regresar a todos los artículos
             </Link>
+            
+            <a 
+              href={`https://wa.me/50372457183?text=${encodeURIComponent(`Estoy interesado en ${item.name} por valor de $${item.price}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="currentColor" 
+                className="w-5 h-5 mr-2"
+              >
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2M12 3.8C16.53 3.8 20.2 7.47 20.2 12C20.2 16.53 16.53 20.2 12 20.2C10.34 20.2 8.81 19.7 7.54 18.82L4.22 19.72L5.14 16.45C4.21 15.15 3.7 13.57 3.7 12C3.7 7.47 7.47 3.8 12 3.8M8.85 7.5C8.67 7.5 8.37 7.57 8.12 7.85C7.87 8.12 7.25 8.7 7.25 9.93C7.25 11.15 8.12 12.33 8.24 12.5C8.37 12.68 9.95 15.15 12.38 16.13C14.35 16.95 14.8 16.77 15.28 16.73C15.77 16.7 16.77 16.15 17 15.57C17.22 14.98 17.22 14.5 17.15 14.38C17.08 14.27 16.9 14.2 16.62 14.07C16.35 13.93 15.12 13.35 14.88 13.27C14.63 13.18 14.45 13.13 14.28 13.42C14.1 13.7 13.65 14.2 13.5 14.38C13.34 14.57 13.18 14.6 12.9 14.47C12.62 14.33 11.8 14.07 10.85 13.2C10.1 12.53 9.6 11.7 9.43 11.42C9.27 11.13 9.41 11 9.55 10.87C9.67 10.75 9.82 10.57 9.95 10.42C10.08 10.27 10.12 10.15 10.22 9.98C10.32 9.82 10.27 9.67 10.22 9.53C10.17 9.4 9.67 8.17 9.43 7.6C9.22 7.05 9 7.03 8.83 7.03C8.67 7.03 8.5 7 8.33 7H8.85Z" />
+              </svg>
+              Contactar por WhatsApp
+            </a>
           </div>
         </div>
       </div>
