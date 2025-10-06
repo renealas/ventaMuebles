@@ -10,6 +10,7 @@ export default function ItemDetailClient({ id }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -20,6 +21,16 @@ export default function ItemDetailClient({ id }) {
           setError('Item not found');
         } else {
           setItem(itemData);
+          
+          // Set the current image index to the main image if available
+          if (itemData.images && itemData.images.length > 0) {
+            // If mainImageIndex exists and is valid, use it; otherwise default to 0
+            if (itemData.mainImageIndex !== undefined && 
+                itemData.mainImageIndex >= 0 && 
+                itemData.mainImageIndex < itemData.images.length) {
+              setCurrentImageIndex(itemData.mainImageIndex);
+            }
+          }
         }
       } catch (error) {
         console.error('Error fetching item:', error);
@@ -48,6 +59,18 @@ export default function ItemDetailClient({ id }) {
         prevIndex === 0 ? item.images.length - 1 : prevIndex - 1
       );
     }
+  };
+  
+  const openModal = () => {
+    setIsModalOpen(true);
+    // Prevent scrolling when modal is open
+    document.body.style.overflow = 'hidden';
+  };
+  
+  const closeModal = () => {
+    setIsModalOpen(false);
+    // Re-enable scrolling when modal is closed
+    document.body.style.overflow = 'auto';
   };
 
   if (loading) {
@@ -86,7 +109,8 @@ export default function ItemDetailClient({ id }) {
                     src={item.images[currentImageIndex]}
                     alt={`${item.name} - Image ${currentImageIndex + 1}`}
                     fill
-                    className="object-cover object-center"
+                    className="object-cover object-center cursor-pointer"
+                    onClick={openModal}
                   />
                   {item.sold && (
                     <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
@@ -190,6 +214,33 @@ export default function ItemDetailClient({ id }) {
           </div>
         </div>
       </div>
+      
+      {/* Full-size image modal */}
+      {isModalOpen && item.images && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" onClick={closeModal}>
+          <div className="relative max-w-screen-xl max-h-screen p-4">
+            <button 
+              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 focus:outline-none"
+              onClick={closeModal}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div 
+              className="relative w-full h-full max-h-[80vh]"
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image
+            >
+              <Image
+                src={item.images[currentImageIndex]}
+                alt={`${item.name} - Full size image`}
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

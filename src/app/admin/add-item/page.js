@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '../../../context/AuthContext';
 import { addItem } from '../../../firebase/firestore';
 import { uploadImages } from '../../../firebase/storage';
@@ -16,6 +17,8 @@ export default function AddItem() {
     condition: '',
   });
   const [imageFiles, setImageFiles] = useState([]);
+  const [imageFilePreviews, setImageFilePreviews] = useState([]);
+  const [mainImageIndex, setMainImageIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -41,7 +44,41 @@ export default function AddItem() {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
       setImageFiles([...imageFiles, ...files]);
+      
+      // Create URL previews for the new files
+      const newPreviews = files.map(file => URL.createObjectURL(file));
+      setImageFilePreviews([...imageFilePreviews, ...newPreviews]);
     }
+  };
+  
+  // Clean up object URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      imageFilePreviews.forEach(preview => URL.revokeObjectURL(preview));
+    };
+  }, [imageFilePreviews]);
+  
+  const handleRemoveImage = (index) => {
+    // Remove the image file and its preview
+    const newImageFiles = [...imageFiles];
+    newImageFiles.splice(index, 1);
+    setImageFiles(newImageFiles);
+    
+    const newPreviews = [...imageFilePreviews];
+    URL.revokeObjectURL(newPreviews[index]); // Clean up the URL
+    newPreviews.splice(index, 1);
+    setImageFilePreviews(newPreviews);
+    
+    // Adjust main image index if needed
+    if (index === mainImageIndex) {
+      setMainImageIndex(0); // Reset to first image
+    } else if (index < mainImageIndex) {
+      setMainImageIndex(mainImageIndex - 1); // Adjust index
+    }
+  };
+  
+  const handleSetMainImage = (index) => {
+    setMainImageIndex(index);
   };
 
   const handleSubmit = async (e) => {
@@ -65,12 +102,13 @@ export default function AddItem() {
       // Upload images first
       const uploadedImages = await uploadImages(imageFiles);
       
-      // Add item to Firestore with image URLs
+      // Add item to Firestore with image URLs and main image index
       const itemData = {
         ...formData,
         price: parseFloat(formData.price),
         sold: false,
         images: uploadedImages,
+        mainImageIndex: mainImageIndex,
         createdAt: new Date(),
       };
       
@@ -85,6 +123,8 @@ export default function AddItem() {
         condition: '',
       });
       setImageFiles([]);
+      setImageFilePreviews([]);
+      setMainImageIndex(0);
       
       setSuccess(true);
       
@@ -209,12 +249,12 @@ export default function AddItem() {
               className="w-full p-2 border rounded"
             >
               <option value="">Seleccionar condición</option>
-              <option value="New">Nuevo</option>
-              <option value="Like New">Como Nuevo</option>
-              <option value="Excellent">Excelente</option>
-              <option value="Good">Bueno</option>
-              <option value="Fair">Regular</option>
-              <option value="Poor">Deficiente</option>
+              <option value="Nuevo">Nuevo</option>
+              <option value="Como Nuevo">Como Nuevo</option>
+              <option value="Excelente">Excelente</option>
+              <option value="Bueno">Bueno</option>
+              <option value="Regular">Regular</option>
+              <option value="Deficiente">Deficiente</option>
             </select>
           </div>
 
@@ -232,8 +272,55 @@ export default function AddItem() {
               className="w-full p-2 border rounded"
             />
             <p className="mt-1 text-sm text-gray-500">
-              Por favor, sube al menos una imagen del artículo.
+              Por favor, sube al menos una imagen del artículo. La primera imagen o la seleccionada como principal será la que se muestre primero.
             </p>
+            
+            {/* Image previews with main image selection */}
+            {imageFilePreviews.length > 0 && (
+              <div className="mt-4">
+                <h3 className="font-medium mb-2">Imágenes seleccionadas:</h3>
+                <p className="text-sm text-gray-500 mb-2">
+                  Haz clic en &quot;Establecer como principal&quot; para elegir la imagen que se mostrará primero.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {imageFilePreviews.map((preview, index) => (
+                    <div 
+                      key={index} 
+                      className={`relative border rounded p-1 ${mainImageIndex === index ? 'border-indigo-500 ring-2 ring-indigo-500' : 'border-gray-200'}`}
+                    >
+                      <div className="relative h-32 w-full">
+                        <Image
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          fill
+                          className="object-cover rounded"
+                        />
+                      </div>
+                      <div className="mt-2 flex flex-col space-y-1">
+                        {mainImageIndex === index ? (
+                          <span className="text-xs text-indigo-600 font-medium">Imagen Principal</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleSetMainImage(index)}
+                            className="text-xs text-indigo-600 hover:text-indigo-800"
+                          >
+                            Establecer como principal
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="text-xs text-red-600 hover:text-red-800"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

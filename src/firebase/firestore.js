@@ -126,6 +126,21 @@ export const updateItemSoldStatus = async (itemId, isSold) => {
   }
 };
 
+// Update an item's main image index
+export const updateItemMainImage = async (itemId, mainImageIndex) => {
+  try {
+    const docRef = doc(db, 'items', itemId);
+    await updateDoc(docRef, {
+      mainImageIndex: mainImageIndex,
+      updatedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating item main image:', error);
+    throw error;
+  }
+};
+
 // Delete an item
 export const deleteItem = async (itemId) => {
   try {

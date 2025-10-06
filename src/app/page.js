@@ -110,7 +110,14 @@ export default function Home() {
               <div className="relative w-full h-64 overflow-hidden rounded-lg bg-gray-200">
                 {item.images && item.images.length > 0 ? (
                   <Image
-                    src={item.images[0]}
+                    src={
+                      // Use main image if available, otherwise use first image
+                      item.mainImageIndex !== undefined && 
+                      item.mainImageIndex >= 0 && 
+                      item.mainImageIndex < item.images.length
+                        ? item.images[item.mainImageIndex]
+                        : item.images[0]
+                    }
                     alt={item.name}
                     fill
                     priority

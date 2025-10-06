@@ -28,7 +28,7 @@ export default function AdminDashboard() {
       
       try {
         setLoading(true);
-        const itemsData = await getAllItems();
+        const itemsData = await getAllItems(true); // Pass true to include sold items
         setItems(itemsData);
       } catch (error) {
         console.error('Error fetching items:', error);
@@ -168,7 +168,18 @@ export default function AdminDashboard() {
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
                               {item.images && item.images.length > 0 ? (
-                                <img className="h-10 w-10 rounded-full object-cover" src={item.images[0]} alt={item.name} />
+                                <img 
+                                  className="h-10 w-10 rounded-full object-cover" 
+                                  src={
+                                    // Use main image if available, otherwise use first image
+                                    item.mainImageIndex !== undefined && 
+                                    item.mainImageIndex >= 0 && 
+                                    item.mainImageIndex < item.images.length
+                                      ? item.images[item.mainImageIndex]
+                                      : item.images[0]
+                                  } 
+                                  alt={item.name} 
+                                />
                               ) : (
                                 <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                                   <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -205,6 +216,12 @@ export default function AdminDashboard() {
                           {new Date(item.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <Link
+                            href={`/admin/edit-item/${item.id}`}
+                            className="text-indigo-600 hover:text-indigo-900 mr-4"
+                          >
+                            Editar
+                          </Link>
                           <button
                             onClick={() => handleMarkAsSold(item.id, item.sold)}
                             disabled={actionInProgress}
