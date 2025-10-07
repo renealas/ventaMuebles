@@ -112,6 +112,16 @@ export default function ItemDetailClient({ id }) {
                     className="object-cover object-center cursor-pointer"
                     onClick={openModal}
                   />
+                  {/* Expand image button */}
+                  <button
+                    onClick={openModal}
+                    className="absolute bottom-4 right-4 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-md transition-all duration-200 z-10"
+                    aria-label="Ver imagen completa"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </button>
                   {item.sold && (
                     <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                       <span className="bg-red-500 text-white px-6 py-3 rounded-full text-xl font-bold shadow-sm">
@@ -251,15 +261,64 @@ export default function ItemDetailClient({ id }) {
               </svg>
             </button>
             <div 
-              className="relative w-full h-full max-h-[80vh]"
+              className="flex items-center justify-center w-full h-[60vh] max-h-[80vh]"
               onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image
             >
-              <Image
+              {/* Using regular img tag instead of Next.js Image for better compatibility */}
+              <img
                 src={item.images[currentImageIndex]}
                 alt={`${item.name} - Full size image`}
-                fill
-                className="object-contain"
+                className="max-w-full max-h-full object-contain"
               />
+              
+              {/* Navigation buttons for modal */}
+              {item.images.length > 1 && (
+                <div className="absolute inset-x-0 bottom-4 flex justify-center space-x-2">
+                  {item.images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentImageIndex(index);
+                      }}
+                      className={`w-3 h-3 rounded-full ${
+                        currentImageIndex === index ? 'bg-white' : 'bg-gray-400'
+                      }`}
+                      aria-label={`View image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Left/Right navigation arrows for modal */}
+              {item.images.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevImage();
+                    }}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 rounded-full p-2 shadow-md transition-all duration-200"
+                    aria-label="Previous image"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextImage();
+                    }}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 rounded-full p-2 shadow-md transition-all duration-200"
+                    aria-label="Next image"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

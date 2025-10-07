@@ -31,9 +31,11 @@ export const addItem = async (itemData) => {
 };
 
 // Get all items
-export const getAllItems = async (includeSold = false) => {
+export const getAllItems = async (includeSold = false, itemType = null) => {
   try {
     let q;
+    
+    // Simplified query to avoid composite index requirements
     if (includeSold) {
       // Get all items including sold ones
       q = query(itemsCollection, orderBy('createdAt', 'desc'));
@@ -53,11 +55,19 @@ export const getAllItems = async (includeSold = false) => {
       return [];
     }
     
-    return querySnapshot.docs.map(doc => ({
+    // Process the results
+    let items = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
     }));
+    
+    // Filter by type in JavaScript if a type is specified
+    if (itemType) {
+      items = items.filter(item => item.type === itemType);
+    }
+    
+    return items;
   } catch (error) {
     console.error('Error getting items:', error);
     throw error;
@@ -65,13 +75,15 @@ export const getAllItems = async (includeSold = false) => {
 };
 
 // Get available (unsold) items
-export const getAvailableItems = async () => {
+export const getAvailableItems = async (itemType = null) => {
   try {
+    // Simplified query to avoid composite index requirements
     const q = query(
       itemsCollection, 
       where('sold', '==', false),
       orderBy('createdAt', 'desc')
     );
+    
     const querySnapshot = await getDocs(q);
     
     // If no documents exist yet, return an empty array
@@ -79,11 +91,19 @@ export const getAvailableItems = async () => {
       return [];
     }
     
-    return querySnapshot.docs.map(doc => ({
+    // Process the results
+    let items = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
     }));
+    
+    // Filter by type in JavaScript if a type is specified
+    if (itemType) {
+      items = items.filter(item => item.type === itemType);
+    }
+    
+    return items;
   } catch (error) {
     console.error('Error getting available items:', error);
     throw error;
@@ -152,6 +172,21 @@ export const updateItemNotes = async (itemId, notes) => {
     return true;
   } catch (error) {
     console.error('Error updating item notes:', error);
+    throw error;
+  }
+};
+
+// Update an item's type
+export const updateItemType = async (itemId, type) => {
+  try {
+    const docRef = doc(db, 'items', itemId);
+    await updateDoc(docRef, {
+      type: type,
+      updatedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating item type:', error);
     throw error;
   }
 };

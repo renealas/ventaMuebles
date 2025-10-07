@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Circular Favicon</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .instructions {
+            max-width: 600px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .favicon-preview {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 10px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .favicon-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        code {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .steps {
+            list-style-type: decimal;
+            padding-left: 20px;
+        }
+        .steps li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create a Circular Favicon</h1>
+    
+    <div class="instructions">
+        <p>To create a circular favicon with a transparent background, follow these steps:</p>
+        
+        <ol class="steps">
+            <li>Take a screenshot of the circular image preview below</li>
+            <li>Open the screenshot in an image editor (like Photoshop, GIMP, or an online editor)</li>
+            <li>Crop the image to include only the circular part</li>
+            <li>Save it as <code>favicon.ico</code> and <code>favicon.png</code> in the <code>public</code> directory</li>
+            <li>Replace the existing favicon files</li>
+        </ol>
+        
+        <p>Alternatively, you can use an online tool like <a href="https://realfavicongenerator.net/" target="_blank">Real Favicon Generator</a> to create a proper circular favicon with transparent background.</p>
+    </div>
+    
+    <div class="preview-container">
+        <h2>Circular Image Preview</h2>
+        <div class="favicon-preview">
+            <img src="favicon.png" alt="Circular Favicon Preview">
+        </div>
+        <p>Take a screenshot of this circular image</p>
+    </div>
+</body>
+</html>

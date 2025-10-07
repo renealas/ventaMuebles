@@ -16,6 +16,7 @@ export default function AddItem() {
     dimensions: '',
     condition: '',
     notes: '',
+    type: 'Mueble', // Default to Mueble
   });
   const [imageFiles, setImageFiles] = useState([]);
   const [imageFilePreviews, setImageFilePreviews] = useState([]);
@@ -257,6 +258,23 @@ export default function AddItem() {
               <option value="Bueno">Bueno</option>
               <option value="Regular">Regular</option>
               <option value="Deficiente">Deficiente</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="type" className="block mb-1 font-medium">
+              Tipo *
+            </label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border rounded"
+            >
+              <option value="Mueble">Mueble</option>
+              <option value="Ropa">Ropa</option>
             </select>
           </div>
 

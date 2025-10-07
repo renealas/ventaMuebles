@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getAllItems } from '../firebase/firestore';
+import { getAllItems } from '../../firebase/firestore';
 
-export default function Home() {
+export default function RopaPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -15,8 +15,8 @@ export default function Home() {
     const fetchItems = async () => {
       try {
         setLoading(true);
-        // Get only furniture items (Mueble type)
-        const allItems = await getAllItems(true, 'Mueble'); // Get all furniture items including sold ones
+        // Get only clothing items (Ropa type)
+        const allItems = await getAllItems(true, 'Ropa'); // Get all clothing items including sold ones
         setItems(allItems);
         setError(''); // Clear any previous errors
       } catch (error) {
@@ -44,7 +44,7 @@ export default function Home() {
       const timer = setTimeout(async () => {
         try {
           if (!isActive) return;
-          const allItems = await getAllItems(true, 'Mueble');
+          const allItems = await getAllItems(true, 'Ropa');
           if (isActive) {
             setItems(allItems);
           }
@@ -82,11 +82,11 @@ export default function Home() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-extrabold tracking-tight text-gray-800 sm:text-5xl md:text-6xl">
-          <span className="block">Venta de Muebles</span>
-          <span className="block text-indigo-600">Para Tu Hogar</span>
+          <span className="block">Venta de Ropa</span>
+          <span className="block text-indigo-600">Para Tu Estilo</span>
         </h1>
         <p className="mt-3 max-w-md mx-auto text-base text-gray-600 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-          Explora nuestra colección de muebles de calidad. Cada pieza es única y cuidadosamente seleccionada.
+          Explora nuestra colección de ropa de calidad. Cada prenda es única y cuidadosamente seleccionada.
         </p>
       </div>
 
@@ -133,7 +133,7 @@ export default function Home() {
               d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-800">No se encontraron muebles</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-800">No se encontró ropa</h3>
           <p className="mt-1 text-sm text-gray-600">
             {items.length === 0 
               ? "Nuestro inventario está actualmente vacío. Por favor, vuelve más tarde para ver nuevas llegadas." 

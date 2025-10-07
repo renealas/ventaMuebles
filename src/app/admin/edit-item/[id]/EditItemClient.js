@@ -5,15 +5,17 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../../../../context/AuthContext';
-import { getItemById, updateItemMainImage, updateItemNotes } from '../../../../firebase/firestore';
+import { getItemById, updateItemMainImage, updateItemNotes, updateItemType } from '../../../../firebase/firestore';
 
 export default function EditItemClient({ id }) {
   const [item, setItem] = useState(null);
   const [mainImageIndex, setMainImageIndex] = useState(0);
   const [notes, setNotes] = useState('');
+  const [type, setType] = useState('Mueble');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
+  const [savingType, setSavingType] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [notesSuccess, setNotesSuccess] = useState(false);
@@ -54,6 +56,11 @@ export default function EditItemClient({ id }) {
         if (itemData.notes !== undefined) {
           setNotes(itemData.notes);
         }
+        
+        // Set type if it exists, otherwise default to Mueble
+        if (itemData.type !== undefined) {
+          setType(itemData.type);
+        }
       } catch (error) {
         console.error('Error fetching item:', error);
         setError('Failed to load item. Please try again.');
@@ -71,6 +78,10 @@ export default function EditItemClient({ id }) {
   
   const handleNotesChange = (e) => {
     setNotes(e.target.value);
+  };
+  
+  const handleTypeChange = (e) => {
+    setType(e.target.value);
   };
 
   const handleSaveMainImage = async () => {
@@ -122,6 +133,37 @@ export default function EditItemClient({ id }) {
       setError('Failed to update notes. Please try again.');
     } finally {
       setSavingNotes(false);
+    }
+  };
+  
+  const [typeSuccess, setTypeSuccess] = useState(false);
+  
+  const handleSaveType = async () => {
+    if (!item) return;
+    
+    try {
+      setSavingType(true);
+      setError('');
+      
+      await updateItemType(item.id, type);
+      
+      setTypeSuccess(true);
+      
+      // Update the local item state with the new type
+      setItem({
+        ...item,
+        type: type
+      });
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setTypeSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error('Error updating type:', error);
+      setError('Failed to update type. Please try again.');
+    } finally {
+      setSavingType(false);
     }
   };
 
@@ -234,6 +276,44 @@ export default function EditItemClient({ id }) {
         ) : (
           <p className="text-gray-500">Este artículo no tiene imágenes.</p>
         )}
+      </div>
+      
+      <div className="bg-white p-6 rounded shadow mb-6">
+        <h2 className="text-xl font-semibold mb-4">Editar Tipo</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Selecciona si este artículo es un mueble o una prenda de ropa.
+        </p>
+        
+        <div className="mb-4">
+          <select
+            id="type"
+            name="type"
+            value={type}
+            onChange={handleTypeChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="Mueble">Mueble</option>
+            <option value="Ropa">Ropa</option>
+          </select>
+        </div>
+        
+        {typeSuccess && (
+          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+            ¡Tipo actualizado exitosamente!
+          </div>
+        )}
+        
+        <div className="flex justify-end">
+          <button
+            onClick={handleSaveType}
+            disabled={savingType}
+            className={`px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 ${
+              savingType ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {savingType ? 'Guardando...' : 'Guardar Tipo'}
+          </button>
+        </div>
       </div>
       
       <div className="bg-white p-6 rounded shadow mb-6">
