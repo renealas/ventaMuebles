@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
-import { getAllItems, updateItemSoldStatus, deleteItem } from '../../firebase/firestore';
+import { getAllItems, updateItemSoldStatus, updateItemReservedStatus, deleteItem } from '../../firebase/firestore';
 
 export default function AdminDashboard() {
   const [items, setItems] = useState([]);
@@ -53,6 +53,23 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Error updating item status:', error);
       setError('Failed to update item status. Please try again.');
+    } finally {
+      setActionInProgress(false);
+    }
+  };
+
+  const handleMarkAsReserved = async (itemId, currentStatus) => {
+    try {
+      setActionInProgress(true);
+      await updateItemReservedStatus(itemId, !currentStatus);
+      
+      // Update local state
+      setItems(items.map(item => 
+        item.id === itemId ? { ...item, reserved: !currentStatus } : item
+      ));
+    } catch (error) {
+      console.error('Error updating item reserved status:', error);
+      setError('Failed to update item reserved status. Please try again.');
     } finally {
       setActionInProgress(false);
     }
@@ -204,13 +221,20 @@ export default function AdminDashboard() {
                           <div className="text-sm text-gray-900">${item.price.toFixed(2)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-col space-y-1">
                           <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            item.sold
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-green-100 text-green-800'
-                          }`}>
-                            {item.sold ? 'Sold' : 'Available'}
+                              item.sold
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-green-100 text-green-800'
+                            }`}>
+                              {item.sold ? 'Sold' : 'Available'}
                           </span>
+                          {item.reserved && !item.sold && (
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                              Reservado
+                            </span>
+                          )}
+                        </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {new Date(item.createdAt).toLocaleDateString()}
@@ -228,6 +252,13 @@ export default function AdminDashboard() {
                             className="text-indigo-600 hover:text-indigo-900 mr-4"
                           >
                             {item.sold ? 'Mark as Available' : 'Mark as Sold'}
+                          </button>
+                          <button
+                            onClick={() => handleMarkAsReserved(item.id, item.reserved || false)}
+                            disabled={actionInProgress || item.sold}
+                            className={`mr-4 ${item.sold ? 'text-gray-400 cursor-not-allowed' : 'text-green-600 hover:text-green-900'}`}
+                          >
+                            {item.reserved ? 'Remove Reservado' : 'Mark as Reservado'}
                           </button>
                           <button
                             onClick={() => handleDeleteItem(item.id)}

@@ -10,13 +10,14 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showSold, setShowSold] = useState(false);
+  const [showReserved, setShowReserved] = useState(false);
 
   useEffect(() => {
     const fetchItems = async () => {
       try {
         setLoading(true);
         // Get only furniture items (Mueble type)
-        const allItems = await getAllItems(true, 'Mueble'); // Get all furniture items including sold ones
+        const allItems = await getAllItems(true, 'Mueble', showReserved); // Get all furniture items including sold ones, and optionally reserved ones
         setItems(allItems);
         setError(''); // Clear any previous errors
       } catch (error) {
@@ -29,7 +30,7 @@ export default function Home() {
     };
 
     fetchItems();
-  }, []);
+  }, [showReserved]);
 
   // Add a more robust way to refresh data when navigating back to this page
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function Home() {
       const timer = setTimeout(async () => {
         try {
           if (!isActive) return;
-          const allItems = await getAllItems(true, 'Mueble');
+          const allItems = await getAllItems(true, 'Mueble', showReserved);
           if (isActive) {
             setItems(allItems);
           }
@@ -73,10 +74,20 @@ export default function Home() {
     };
   }, []);
 
-  // Filter items based on sold status
-  const filteredItems = showSold 
-    ? items 
-    : items.filter(item => !item.sold);
+  // Filter items based on sold and reserved status
+  const filteredItems = items.filter(item => {
+    // If showSold is false, filter out sold items
+    if (!showSold && item.sold) {
+      return false;
+    }
+    
+    // If showReserved is false, filter out reserved items
+    if (!showReserved && item.reserved && !item.sold) {
+      return false;
+    }
+    
+    return true;
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -90,21 +101,58 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-end mb-6 space-x-6">
         <div className="flex items-center">
-          <label htmlFor="show-sold" className="mr-2 text-sm text-gray-600">
+          <label htmlFor="show-sold" className="mr-2 text-sm text-gray-600 cursor-pointer">
             Mostrar artículos vendidos
           </label>
-          <div className="relative inline-block w-10 mr-2 align-middle select-none">
+          <div 
+            className="relative inline-flex items-center cursor-pointer"
+            onClick={() => setShowSold(!showSold)}
+          >
             <input
               type="checkbox"
               id="show-sold"
               checked={showSold}
               onChange={() => setShowSold(!showSold)}
-              className="sr-only"
+              className="sr-only peer"
             />
-            <div className={`block h-6 rounded-full w-10 ${showSold ? 'bg-indigo-500' : 'bg-gray-300'}`}></div>
-            <div className={`absolute left-0.5 top-0.5 bg-white border-2 ${showSold ? 'border-indigo-500' : 'border-gray-300'} w-5 h-5 rounded-full transition-transform transform ${showSold ? 'translate-x-4' : ''}`}></div>
+            <div 
+              className="w-11 h-6 bg-gray-300 peer-checked:bg-indigo-500 rounded-full transition-colors cursor-pointer"
+            ></div>
+            <span 
+              className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5 cursor-pointer"
+            ></span>
+            <span id="show-sold-label" className="sr-only">
+              {showSold ? 'Hide sold items' : 'Show sold items'}
+            </span>
+          </div>
+        </div>
+        
+        <div className="flex items-center">
+          <label htmlFor="show-reserved" className="mr-2 text-sm text-gray-600 cursor-pointer">
+            Mostrar artículos reservados
+          </label>
+          <div 
+            className="relative inline-flex items-center cursor-pointer"
+            onClick={() => setShowReserved(!showReserved)}
+          >
+            <input
+              type="checkbox"
+              id="show-reserved"
+              checked={showReserved}
+              onChange={() => setShowReserved(!showReserved)}
+              className="sr-only peer"
+            />
+            <div 
+              className="w-11 h-6 bg-gray-300 peer-checked:bg-indigo-500 rounded-full transition-colors cursor-pointer"
+            ></div>
+            <span 
+              className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5 cursor-pointer"
+            ></span>
+            <span id="show-reserved-label" className="sr-only">
+              {showReserved ? 'Hide reserved items' : 'Show reserved items'}
+            </span>
           </div>
         </div>
       </div>
@@ -175,6 +223,13 @@ export default function Home() {
                   <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                     <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-sm">
                       VENDIDO
+                    </span>
+                  </div>
+                )}
+                {!item.sold && item.reserved && (
+                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                    <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-sm">
+                      RESERVADO
                     </span>
                   </div>
                 )}

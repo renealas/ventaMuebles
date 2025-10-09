@@ -31,7 +31,7 @@ export const addItem = async (itemData) => {
 };
 
 // Get all items
-export const getAllItems = async (includeSold = false, itemType = null) => {
+export const getAllItems = async (includeSold = false, itemType = null, includeReserved = true) => {
   try {
     let q;
     
@@ -59,12 +59,19 @@ export const getAllItems = async (includeSold = false, itemType = null) => {
     let items = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
+      // Ensure reserved property exists with default value of false
+      reserved: doc.data().reserved || false,
       createdAt: doc.data().createdAt?.toDate() || new Date(),
     }));
     
     // Filter by type in JavaScript if a type is specified
     if (itemType) {
       items = items.filter(item => item.type === itemType);
+    }
+    
+    // Filter out reserved items if includeReserved is false
+    if (!includeReserved) {
+      items = items.filter(item => !item.reserved);
     }
     
     return items;
@@ -75,7 +82,7 @@ export const getAllItems = async (includeSold = false, itemType = null) => {
 };
 
 // Get available (unsold) items
-export const getAvailableItems = async (itemType = null) => {
+export const getAvailableItems = async (itemType = null, includeReserved = true) => {
   try {
     // Simplified query to avoid composite index requirements
     const q = query(
@@ -95,12 +102,19 @@ export const getAvailableItems = async (itemType = null) => {
     let items = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
+      // Ensure reserved property exists with default value of false
+      reserved: doc.data().reserved || false,
       createdAt: doc.data().createdAt?.toDate() || new Date(),
     }));
     
     // Filter by type in JavaScript if a type is specified
     if (itemType) {
       items = items.filter(item => item.type === itemType);
+    }
+    
+    // Filter out reserved items if includeReserved is false
+    if (!includeReserved) {
+      items = items.filter(item => !item.reserved);
     }
     
     return items;
@@ -142,6 +156,21 @@ export const updateItemSoldStatus = async (itemId, isSold) => {
     return true;
   } catch (error) {
     console.error('Error updating item sold status:', error);
+    throw error;
+  }
+};
+
+// Update an item's reserved status
+export const updateItemReservedStatus = async (itemId, isReserved) => {
+  try {
+    const docRef = doc(db, 'items', itemId);
+    await updateDoc(docRef, {
+      reserved: isReserved,
+      updatedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating item reserved status:', error);
     throw error;
   }
 };
